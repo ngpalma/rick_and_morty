@@ -1,0 +1,55 @@
+.divDetail {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+  margin-top: 50px;
+}
+.divDetail img{
+    border-radius: 100px;
+    border-width: 10px;
+    border-style: solid;
+    border-color:chocolate;
+}
+.detailDiv {
+  margin-top: 25px;
+}
+
+.buttonDiv {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 10px;
+  padding: 5px 10px;
+  /* background-color: rgb(46, 149, 240); */
+  border-radius: 5px;
+  font-size: medium;
+  font-weight: bold;
+  background-color: purple;
+  color: chartreuse;
+}
+.buttonDiv:hover{
+  background-color: chartreuse;
+  color: purple;
+    
+}
+
+.divNav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+  /* margin-top: 30px; */
+  font-size: 20px;
+  font-weight: bold;
+}
+.a:link {
+    color: black;
+}
+/* .navDiv {
+  margin-top: 15px;
+  margin-bottom: 15px;
+} */
+
+.divAbout img{
+    height: 300px;
+}
