@@ -24,7 +24,18 @@ export default function Form(props) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    props.login(userData);
+    if (!errors.username && !errors.password) {
+      props.login(userData);
+    }
+  }
+  // function handleSubmit(e) {
+  //   e.preventDefault();
+  //   props.login(userData);
+  // }
+  function handleKeyPress(e) {
+    if (e.key === "Enter") {
+      handleSubmit(e);
+    }
   }
 
   return (
@@ -38,7 +49,7 @@ export default function Form(props) {
         value={userData.username}
         onChange={handleInputChange}
       />
-      <p>{errors.username}</p>
+      {errors.username && <p>{errors.username}</p>}
       <br />
       <label htmlFor="password"></label>
       <input
@@ -48,10 +59,11 @@ export default function Form(props) {
         type="password"
         value={userData.password}
         onChange={handleInputChange}
+        onKeyPress={handleKeyPress}
       />
-      <p>{errors.password}</p>
+            {errors.password && <p>{errors.password}</p>}
       <br />
-      <button onClick={handleSubmit}>SUBMIT</button>
+      <button type="submit" onClick={handleSubmit}>Iniciar Sesión</button>
     </div>
   );
 }

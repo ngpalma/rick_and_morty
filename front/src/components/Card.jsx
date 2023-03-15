@@ -41,6 +41,7 @@ export function Card({
         setIsFav(true);
       }
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [myFavorites]);
   
   return (
