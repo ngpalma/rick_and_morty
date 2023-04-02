@@ -6,8 +6,15 @@ import { RingLoader } from "react-spinners";
 
 export default function Detail() {
   const { detailId } = useParams();
+  const [character, setCharacter] = useState({
+    name: "",
+    status: "",
+    specie: "",
+    gender: "",
+    origin: "",
+    image: "",
+  });
   const navigate = useNavigate();
-  const [character, setCharacter] = useState();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,7 +55,7 @@ export default function Detail() {
           <div>
             <h1>NOMBRE: {character.name}</h1>
             <h2>ESTADO: {character.status}</h2>
-            <h2>ESPECIE: {character.species}</h2>
+            <h2>ESPECIE: {character.specie}</h2>
             <h2>GENERO: {character.gender}</h2>
             <h2>ORIGEN: {character.origin?.name}</h2>
           </div>

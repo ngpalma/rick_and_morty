@@ -1,30 +1,80 @@
-// import axios from "axios";
+import {
+  GET_CHARS,
+  ORDER,
+  ADD_CHARACTER,
+  DELETE_CHARACTER,
+  FILTER,
+  LOGIN,
+} from "./types.js";
 
-import { ORDER, ADD_CHARACTER, DELETE_CHARACTER, FILTER } from "./types.js";
-
-export function addCharacter(char) {
+export function addCharacter(char, idUser) {
   return async (dispatch) => {
     try {
-      const response = await fetch("http://localhost:3001/rickandmorty/fav", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(char),
-      });
-      const data = await response.json();
-      dispatch({ type: ADD_CHARACTER, payload: data });
+      const data = await fetch(
+        `http://localhost:3001/rickandmorty/fav?idUser=${idUser}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json; charset=UTF-8" },
+          body: JSON.stringify(char),
+        }
+      ).then((response) => response.json());
+      if (data) dispatch({ type: ADD_CHARACTER, payload: data });
     } catch (error) {
       console.error(error);
     }
   };
 }
 
-export function deleteCharacter(id) {
+export function deleteCharacter(id, idUser) {
   return async (dispatch) => {
     try {
-      await fetch(`http://localhost:3001/rickandmorty/fav/${id}`, {
-        method: "DELETE",
-      });
-      dispatch({ type: DELETE_CHARACTER, payload: id });
+      const data = await fetch(
+        `http://localhost:3001/rickandmorty/fav/${id}?idUser=${idUser}`,
+        {
+          method: "DELETE",
+        }
+      ).then((response) => response.json());
+      if (data.success) dispatch({ type: DELETE_CHARACTER, payload: id });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+}
+
+export function getFavs(idUser) {
+  return async function (dispatch) {
+    try {
+      const data = await fetch(
+        `http://localhost:3001/rickandmorty/fav?idUser=${idUser}`
+      ).then((response) => response.json());
+      if (data) dispatch({ type: GET_CHARS, payload: data });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+}
+
+export function filterCards(status) {
+  return {
+    type: FILTER,
+    payload: status,
+  };
+}
+
+export function orderCards(id) {
+  return {
+    type: ORDER,
+    payload: id,
+  };
+}
+
+export function login(email, password) {
+  return async function (dispatch) {
+    try {
+      const obj = await fetch(
+        `http://localhost:3001/rickandmorty/login?email=${email}&password=${password}}`
+      ).then((response) => response.json());
+      if (obj.access) dispatch({ type: LOGIN, payload: obj.id });
     } catch (error) {
       console.error(error);
     }
@@ -42,33 +92,5 @@ export function deleteCharacter(id) {
 //   return {
 //     type: DELETE_CHARACTER,
 //     payload: id,
-//   };
-// }
-
-export function filterCards(status){
-  return {
-    type: FILTER,
-    payload: status
-  }
-}
-
-export function orderCards(id){
-  return{
-    type: ORDER,
-    payload: id
-  }
-}
-
-// export function getCharName() {
-//   return function (dispatch) {
-//     axios
-//       .get("https://rickandmortyapi.com/api/character")
-//       .then((r) => r.data.name)
-//       .then((d) =>
-//         dispatch({
-//           type: GET_CHAR_NAME,
-//           payload: d,
-//         })
-//       );
 //   };
 // }

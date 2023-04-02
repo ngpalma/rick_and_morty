@@ -4,28 +4,26 @@
 const { Router } = require("express");
 const { getCharById } = require("../controllers/getCharById.js");
 const { getCharDetail } = require("../controllers/getCharDetail");
-let { getChars, createChar, deleteFavs } = require("../controllers/getFavs.js");
+// let { getChars, createChar, deleteFavs } = require("../controllers/getFavs.js");
+const { deleteFav } = require("../controllers/deleteFav");
+const { login } = require("../controllers/login");
+const { postFav } = require("../controllers/postFav");
+const { postUser } = require("../controllers/postUser");
+const { getFavs } = require("../controllers/getFavs");
 
 const router = Router();
 
 router.get("/onsearch/:id", getCharById);
 router.get("/detail/:id", getCharDetail);
-router.post("/fav", (req, res) => {
-  const { image, name, gender, species } = req.body;
-  if (!image || !name || !gender || !species)
-    return res.status(400).json({ error: "Faltan datos" });
-  const personaje = createChar(image, name, gender, species);
-  res.status(200).json(personaje);
-});
-router.get("/fav", (req, res) => {
-  const chars = getChars();
-  res.status(200).send(chars);
-});
-router.delete("/fav/:id", (req, res) => {
-  const { id } = req.params;
-  const deleteFav = deleteFavs(id);
-  if (deleteFav["error"]) return res.status(400).json(deleteFav);
-  res.status(200).send(deleteFav);
-});
+router.get("/fav", getFavs);
+router.post("/fav", postFav);
+router.delete("/fav/:id", deleteFav);
+router.get("/login", login);
+router.post("/login", postUser);
 
 module.exports = { router };
+
+// router.get("/fav", (req, res) => {
+//   const chars = getChars();
+//   res.status(200).send(chars);
+// });
