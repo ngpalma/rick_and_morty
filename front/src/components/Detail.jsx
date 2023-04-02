@@ -9,7 +9,7 @@ export default function Detail() {
   const [character, setCharacter] = useState({
     name: "",
     status: "",
-    specie: "",
+    species: "",
     gender: "",
     origin: "",
     image: "",
@@ -55,7 +55,7 @@ export default function Detail() {
           <div>
             <h1>NOMBRE: {character.name}</h1>
             <h2>ESTADO: {character.status}</h2>
-            <h2>ESPECIE: {character.specie}</h2>
+            <h2>ESPECIE: {character.species}</h2>
             <h2>GENERO: {character.gender}</h2>
             <h2>ORIGEN: {character.origin?.name}</h2>
           </div>
