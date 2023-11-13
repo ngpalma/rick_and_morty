@@ -5,10 +5,9 @@ module.exports = (sequelize) => {
     "User",
     {
       id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+        type: DataTypes.UUIDV4,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: DataTypes.UUIDV4,
       },
       email: {
         type: DataTypes.STRING,
@@ -20,6 +19,6 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
     },
-    { timestamps: false, tableName: "users" }
+    { timestamps: false }
   );
 };
