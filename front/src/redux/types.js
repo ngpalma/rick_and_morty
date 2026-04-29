@@ -1,11 +1,11 @@
-export const ADD_CHARACTER = "ADD_CHARACTER";
-
-export const DELETE_CHARACTER = "DELETE_CHARACTER";
-
-export const FILTER = "FILTER";
-
-export const ORDER = "ORDER";
-
-export const LOGIN = "LOGIN";
-
 export const GET_CHARS = "GET_CHARS";
+export const SET_PAGE = "SET_PAGE";
+export const SET_FILTERS = "SET_FILTERS";
+export const GET_FAVS = "GET_FAVS";
+export const ADD_FAVORITE = "ADD_FAVORITE";
+export const DELETE_FAVORITE = "DELETE_FAVORITE";
+export const FILTER_FAVS = "FILTER_FAVS";
+export const ORDER_FAVS = "ORDER_FAVS";
+export const LOGIN = "LOGIN";
+export const LOGOUT = "LOGOUT";
+export const RESTORE_SESSION = "RESTORE_SESSION";

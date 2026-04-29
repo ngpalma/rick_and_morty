@@ -1,16 +1,26 @@
 import {
-  ADD_CHARACTER,
-  DELETE_CHARACTER,
-  FILTER,
-  ORDER,
-  LOGIN,
   GET_CHARS,
-} from "./types.js";
+  SET_PAGE,
+  SET_FILTERS,
+  GET_FAVS,
+  ADD_FAVORITE,
+  DELETE_FAVORITE,
+  FILTER_FAVS,
+  ORDER_FAVS,
+  LOGIN,
+  LOGOUT,
+  RESTORE_SESSION,
+} from "./types";
 
 const initialState = {
-  idUser: 0,
+  characters: [],
+  totalPages: 1,
+  currentPage: 1,
+  filters: { name: "", status: "", gender: "", species: "" },
   myFavorites: [],
-  allCharacters: [],
+  displayedFavorites: [],
+  user: null,
+  token: null,
 };
 
 const rootReducer = (state = initialState, { type, payload }) => {
@@ -18,65 +28,50 @@ const rootReducer = (state = initialState, { type, payload }) => {
     case GET_CHARS:
       return {
         ...state,
-        allCharacters: [...payload],
-        myFavorites: [...payload],
+        characters: payload.results || [],
+        totalPages: payload.info?.pages || 1,
       };
-    case ADD_CHARACTER:
-      const addFavorites = [...state.allCharacters, payload];
+    case SET_PAGE:
+      return { ...state, currentPage: payload };
+    case SET_FILTERS:
       return {
         ...state,
-        allCharacters: [...addFavorites],
-        myFavorites: [...addFavorites],
+        filters: { ...state.filters, ...payload },
+        currentPage: 1,
       };
-    case DELETE_CHARACTER:
-      const deleteFavorites = state.allCharacters.filter(
-        (ele) => ele.id !== payload
-      );
+    case GET_FAVS:
+      return { ...state, myFavorites: payload, displayedFavorites: payload };
+    case ADD_FAVORITE: {
+      const updated = [...state.myFavorites, payload];
+      return { ...state, myFavorites: updated, displayedFavorites: updated };
+    }
+    case DELETE_FAVORITE: {
+      const updated = state.myFavorites.filter((f) => f.id !== payload);
+      return { ...state, myFavorites: updated, displayedFavorites: updated };
+    }
+    case FILTER_FAVS:
       return {
         ...state,
-        allCharacters: [...deleteFavorites],
-        myFavorites: [...deleteFavorites],
+        displayedFavorites: payload
+          ? state.myFavorites.filter((f) => f.gender === payload)
+          : state.myFavorites,
       };
-    case FILTER:
-      const copy = [...state.allCharacters];
-      const filtro = copy.filter((char) => char.gender === payload);
-      return {
-        ...state,
-        myFavorites: filtro,
-      };
-    case ORDER:
-      const copyChar = [...state.allCharacters];
-      const sortOrder = copyChar.sort((a, b) => {
-        if (a.id > b.id) {
-          return payload === "Ascendente" ? 1 : -1;
-        }
-        if (a.id < b.id) {
-          return payload === "Ascendente" ? -1 : 1;
-        } else return 0;
+    case ORDER_FAVS: {
+      const sorted = [...state.myFavorites].sort((a, b) => {
+        if (a.id > b.id) return payload === "asc" ? 1 : -1;
+        if (a.id < b.id) return payload === "asc" ? -1 : 1;
+        return 0;
       });
-      return {
-        ...state,
-        myFavorites: sortOrder,
-      };
+      return { ...state, displayedFavorites: sorted };
+    }
     case LOGIN:
-      return {
-        ...state,
-        idUser: payload,
-      };
+    case RESTORE_SESSION:
+      return { ...state, user: payload.user, token: payload.token };
+    case LOGOUT:
+      return { ...initialState };
     default:
-      return { ...state };
+      return state;
   }
 };
 
 export default rootReducer;
-
-// case "RESET":
-//       return {
-//         ...state,
-//         myFavorites: state.allMyFavorites,
-//       };
-//     case "LOGIN":
-//       return {
-//         ...state,
-//         idUser: action.payload,
-//       };

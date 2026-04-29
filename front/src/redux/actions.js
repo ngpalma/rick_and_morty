@@ -1,96 +1,112 @@
+import axios from "axios";
 import {
   GET_CHARS,
-  ORDER,
-  ADD_CHARACTER,
-  DELETE_CHARACTER,
-  FILTER,
+  SET_PAGE,
+  SET_FILTERS,
+  GET_FAVS,
+  ADD_FAVORITE,
+  DELETE_FAVORITE,
+  FILTER_FAVS,
+  ORDER_FAVS,
   LOGIN,
-} from "./types.js";
+  LOGOUT,
+  RESTORE_SESSION,
+} from "./types";
 
-export function addCharacter(char, idUser) {
-  return async (dispatch) => {
+const API = "http://localhost:3001";
+
+const authHeader = (token) => ({ Authorization: `Bearer ${token}` });
+
+export const getAllCharacters =
+  (page = 1, filters = {}, signal = null) =>
+  async (dispatch, getState) => {
+    const { token } = getState();
     try {
-      const data = await fetch(
-        `http://localhost:3001/rickandmorty/fav?idUser=${idUser}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json; charset=UTF-8" },
-          body: JSON.stringify(char),
-        }
-      ).then((response) => response.json());
-      if (data) dispatch({ type: ADD_CHARACTER, payload: data });
+      const params = new URLSearchParams({ page });
+      if (filters.name) params.append("name", filters.name);
+      if (filters.status) params.append("status", filters.status);
+      if (filters.gender) params.append("gender", filters.gender);
+      if (filters.species) params.append("species", filters.species);
+
+      const { data } = await axios.get(`${API}/characters?${params}`, {
+        headers: authHeader(token),
+        signal,
+      });
+      dispatch({ type: GET_CHARS, payload: data });
+      return data;
     } catch (error) {
-      console.error(error);
+      if (axios.isCancel(error)) return null;
+      console.error("Error al obtener personajes:", error.message);
+      return null;
     }
   };
-}
 
-export function deleteCharacter(id, idUser) {
-  return async (dispatch) => {
-    try {
-      const data = await fetch(
-        `http://localhost:3001/rickandmorty/fav/${id}?idUser=${idUser}`,
-        {
-          method: "DELETE",
-        }
-      ).then((response) => response.json());
-      if (data.success) dispatch({ type: DELETE_CHARACTER, payload: id });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-}
+export const setPage = (page) => ({ type: SET_PAGE, payload: page });
 
-export function getFavs(idUser) {
-  return async function (dispatch) {
-    try {
-      const data = await fetch(
-        `http://localhost:3001/rickandmorty/fav?idUser=${idUser}`
-      ).then((response) => response.json());
-      if (data) dispatch({ type: GET_CHARS, payload: data });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-}
+export const setFilters = (filters) => ({ type: SET_FILTERS, payload: filters });
 
-export function filterCards(status) {
-  return {
-    type: FILTER,
-    payload: status,
-  };
-}
+export const getFavs = () => async (dispatch, getState) => {
+  const { token } = getState();
+  try {
+    const { data } = await axios.get(`${API}/favorites`, {
+      headers: authHeader(token),
+    });
+    dispatch({ type: GET_FAVS, payload: data });
+  } catch (error) {
+    console.error("Error al obtener favoritos:", error.message);
+  }
+};
 
-export function orderCards(id) {
-  return {
-    type: ORDER,
-    payload: id,
-  };
-}
+export const addFavorite = (char) => async (dispatch, getState) => {
+  const { token } = getState();
+  try {
+    const { data } = await axios.post(`${API}/favorites`, char, {
+      headers: authHeader(token),
+    });
+    if (data.fav) dispatch({ type: ADD_FAVORITE, payload: data.fav });
+  } catch (error) {
+    console.error("Error al agregar favorito:", error.message);
+  }
+};
 
-export function login(email, password) {
-  return async function (dispatch) {
-    try {
-      const obj = await fetch(
-        `http://localhost:3001/rickandmorty/login?email=${email}&password=${password}}`
-      ).then((response) => response.json());
-      if (obj.access) dispatch({ type: LOGIN, payload: obj.id });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-}
+export const deleteFavorite = (id) => async (dispatch, getState) => {
+  const { token } = getState();
+  try {
+    const { data } = await axios.delete(`${API}/favorites/${id}`, {
+      headers: authHeader(token),
+    });
+    if (data.success) dispatch({ type: DELETE_FAVORITE, payload: id });
+  } catch (error) {
+    console.error("Error al eliminar favorito:", error.message);
+  }
+};
 
-// export function addCharacter(char) {
-//   return {
-//     type: ADD_CHARACTER,
-//     payload: char,
-//   };
-// }
+export const filterFavs = (value) => ({ type: FILTER_FAVS, payload: value });
 
-// export function deleteCharacter(id) {
-//   return {
-//     type: DELETE_CHARACTER,
-//     payload: id,
-//   };
-// }
+export const orderFavs = (value) => ({ type: ORDER_FAVS, payload: value });
+
+export const login = (email, password) => async (dispatch) => {
+  const { data } = await axios.post(`${API}/users/login`, { email, password });
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("user", JSON.stringify(data.user));
+  dispatch({ type: LOGIN, payload: data });
+};
+
+export const logout = () => (dispatch) => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  dispatch({ type: LOGOUT });
+};
+
+export const register = (email, password) => async () => {
+  const { data } = await axios.post(`${API}/users/register`, { email, password });
+  return data;
+};
+
+export const restoreSession = () => (dispatch) => {
+  const token = localStorage.getItem("token");
+  const user = localStorage.getItem("user");
+  if (token && user) {
+    dispatch({ type: RESTORE_SESSION, payload: { token, user: JSON.parse(user) } });
+  }
+};
