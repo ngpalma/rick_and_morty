@@ -1,69 +1,69 @@
-import React from "react";
-import { validation } from "./validation";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate, Link } from "react-router-dom";
+import { login } from "../redux/actions";
+import styles from "./styles.module.css";
 
-export default function Form(props) {
-  const [userData, setUserData] = React.useState({
-    username: "",
-    password: "",
-  });
+export default function Form() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [errors, setErrors] = React.useState({
-    username: "",
-    password: "",
-  });
-
-  function handleInputChange(e) {
-    setUserData({ ...userData, [e.target.name]: e.target.value });
-    setErrors(
-      validation({
-        ...userData,
-        [e.target.name]: e.target.value,
-      })
-    );
-  }
-
-  function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!errors.username && !errors.password) {
-      props.login(userData);
+    if (!email || !password) {
+      setError("Completá todos los campos");
+      return;
     }
-  }
-  // function handleSubmit(e) {
-  //   e.preventDefault();
-  //   props.login(userData);
-  // }
-  function handleKeyPress(e) {
-    if (e.key === "Enter") {
-      handleSubmit(e);
+    setLoading(true);
+    setError("");
+    try {
+      await dispatch(login(email, password));
+      navigate("/home");
+    } catch (err) {
+      setError(err.response?.data?.message || "Email o contraseña incorrectos");
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <div>
-      <label htmlFor="username"></label>
-      <input
-        id="username"
-        name="username"
-        placeholder="Ingrese su usuario..."
-        type="text"
-        value={userData.username}
-        onChange={handleInputChange}
-      />
-      {errors.username && <p>{errors.username}</p>}
-      <br />
-      <label htmlFor="password"></label>
-      <input
-        id="password"
-        name="password"
-        placeholder="Ingrese su contraseña..."
-        type="password"
-        value={userData.password}
-        onChange={handleInputChange}
-        onKeyPress={handleKeyPress}
-      />
-            {errors.password && <p>{errors.password}</p>}
-      <br />
-      <button type="submit" onClick={handleSubmit}>Iniciar Sesión</button>
+    <div className={styles.authPage}>
+      <div className={styles.authCard}>
+        <h1 className={styles.authTitle}>RICK & MORTY</h1>
+        <p className={styles.authSubtitle}>Portal de acceso</p>
+        <form className={styles.authForm} onSubmit={handleSubmit}>
+          <input
+            className={styles.authInput}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+          />
+          <input
+            className={styles.authInput}
+            type="password"
+            placeholder="Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+          />
+          {error && <p className={styles.authError}>{error}</p>}
+          <button className={styles.authBtn} type="submit" disabled={loading}>
+            {loading ? "Ingresando..." : "Iniciar sesión"}
+          </button>
+        </form>
+        <p className={styles.authSwitch}>
+          ¿No tenés cuenta?{" "}
+          <Link to="/register" className={styles.authLink}>
+            Registrate
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

@@ -1,22 +1,33 @@
-import React from "react";
-import { Link } from "react-router-dom";
-// import About from "./About";
-import SearchBar from "./SearchBar";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logout } from "../redux/actions";
 import styles from "./styles.module.css";
 
-export default function Nav({ onSearch }) {
+export default function Nav() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/");
+  };
+
   return (
-    <div>
-      <div className={styles.divNav}>
-        <Link to="/home">Home</Link>
-        <Link to="/favorites">Favorites</Link>
-        <Link to="/about">About</Link>
-        <Link to="/">Logout</Link>
+    <nav className={styles.nav}>
+      <Link to="/home" className={styles.navBrand}>
+        <span className={styles.navTitle}>RICK & MORTY</span>
+      </Link>
+      <div className={styles.navLinks}>
+        <Link to="/home" className={styles.navLink}>
+          Personajes
+        </Link>
+        <Link to="/favorites" className={styles.navLink}>
+          Favoritos
+        </Link>
+        <button onClick={handleLogout} className={styles.logoutBtn}>
+          Cerrar sesión
+        </button>
       </div>
-      <SearchBar onSearch={onSearch} />
-    </div>
+    </nav>
   );
 }
-
-// (characterID) => window.alert(characterID)
-// onSearch={(characterID) => window.alert(characterID)}

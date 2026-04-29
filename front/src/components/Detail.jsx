@@ -1,128 +1,75 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import axios from "axios";
 import styles from "./styles.module.css";
-import { RingLoader } from "react-spinners";
 
 export default function Detail() {
-  const { detailId } = useParams();
-  const [character, setCharacter] = useState({
-    name: "",
-    status: "",
-    species: "",
-    gender: "",
-    origin: "",
-    image: "",
-  });
+  const { id } = useParams();
   const navigate = useNavigate();
+  const token = useSelector((state) => state.token);
+  const [character, setCharacter] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3001/rickandmorty/detail/${detailId}`)
-      .then((response) => {
-        const char = response.data;
-        if (char.name) {
-          setCharacter(char);
-        } else {
-          setLoading(false);
-          window.alert("No hay personajes con ese ID");
-        }
+      .get(`http://localhost:3001/characters/detail/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
       })
-      .catch((err) => {
-        setLoading(false);
-        window.alert("No hay personajes con ese ID");
-      })
+      .then((res) => setCharacter(res.data))
+      .catch(() => navigate("/home"))
       .finally(() => setLoading(false));
-  }, [detailId]);
+  }, [id, token, navigate]);
+
+  if (loading) {
+    return (
+      <div className={styles.loadingScreen}>
+        <div className={styles.spinner} />
+      </div>
+    );
+  }
+
+  if (!character) return null;
+
+  const statusClass =
+    character.status?.toLowerCase() === "alive"
+      ? styles.alive
+      : character.status?.toLowerCase() === "dead"
+      ? styles.dead
+      : styles.unknown;
 
   return (
-    <div className={styles.detailDiv}>
-      <button
-        className={styles.buttonDiv}
-        onClick={() => {
-          navigate("/home");
-        }}
-      >
-        Go Home
+    <div className={styles.detailPage}>
+      <button className={styles.backBtn} onClick={() => navigate("/home")}>
+        ← Volver
       </button>
-      {loading ? (
-        <div className={styles.loadingDiv}>
-          <RingLoader size={150} color={"#1abc9c"} loading={loading} />
-        </div>
-      ) : character ? (
-        <div className={styles.divDetail}>
-          <div>
-            <h1>NOMBRE: {character.name}</h1>
-            <h2>ESTADO: {character.status}</h2>
-            <h2>ESPECIE: {character.species}</h2>
-            <h2>GENERO: {character.gender}</h2>
-            <h2>ORIGEN: {character.origin?.name}</h2>
+      <div className={styles.detailContainer}>
+        <img
+          src={character.image}
+          alt={character.name}
+          className={styles.detailImage}
+        />
+        <div className={styles.detailInfo}>
+          <h1 className={styles.detailName}>{character.name}</h1>
+          <div className={styles.detailStat}>
+            <span className={styles.statLabel}>Estado</span>
+            <span className={`${styles.statusDot} ${statusClass}`} />
+            <span>{character.status}</span>
           </div>
-          <div>
-            <img src={character.image} alt={character.name} />
+          <div className={styles.detailStat}>
+            <span className={styles.statLabel}>Especie</span>
+            <span>{character.species}</span>
+          </div>
+          <div className={styles.detailStat}>
+            <span className={styles.statLabel}>Género</span>
+            <span>{character.gender}</span>
+          </div>
+          <div className={styles.detailStat}>
+            <span className={styles.statLabel}>Origen</span>
+            <span>{character.origin?.name || "Desconocido"}</span>
           </div>
         </div>
-      ) : (
-        <div>Error al cargar el personaje</div>
-      )}
+      </div>
     </div>
   );
 }
-
-
-// import { useState, useEffect } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import axios from "axios";
-// import styles from "./styles.module.css";
-
-// export default function Detail() {
-//   const { detailId } = useParams();
-//   const navigate = useNavigate();
-//   const [character, setCharacter] = useState();
-
-//   useEffect(() => {
-//     axios
-//       .get(`https://rickandmortyapi.com/api/character/${detailId}`)
-//       .then((response) => {
-//         const char = response.data;
-//         if (char.name) {
-//           setCharacter(char);
-//         } else {
-//           window.alert("No hay personajes con ese ID");
-//         }
-//       })
-//       .catch((err) => {
-//         window.alert("No hay personajes con ese ID");
-//       });
-//     return setCharacter({});
-//   }, [detailId]);
-
-//   return (
-//     <div className={styles.detailDiv}>
-//       <button className={styles.buttonDiv}
-//         onClick={() => {
-//           navigate("/home");
-//         }}
-//       >
-//         Go Home
-//       </button>
-//       { character ? 
-//         <div className={styles.divDetail}>
-//           <div>
-//             <h1>NOMBRE: {character.name}</h1>
-//             <h2>ESTADO: {character.status}</h2>
-//             <h2>ESPECIE: {character.species}</h2>
-//             <h2>GENERO: {character.gender}</h2>
-//             <h2>ORIGEN: {character.origin?.name}</h2>
-//           </div>
-//           <div>
-//             <img src={character.image} alt={character.name} />
-//           </div>
-//         </div>
-//        : 
-//         ""
-//       }
-//     </div>
-//   );
-// }
