@@ -42,7 +42,7 @@ CREATE DATABASE rickandmorty;
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/ngpalma/rick_and_morty
+git clone https://github.com/ngpalma/rick_and_morty.git
 cd rick_and_morty
 ```
 
